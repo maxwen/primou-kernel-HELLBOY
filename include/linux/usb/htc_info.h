@@ -15,7 +15,6 @@
 #ifndef __HTC_INFO__
 #define __HTC_INFO__
 
-#ifndef CONFIG_USB_MSM_72K
 #include <mach/board.h>
 struct usb_info {
 	int *phy_init_seq;
@@ -38,7 +37,6 @@ struct usb_info {
 	enum usb_connect_type connect_type;
 	struct delayed_work chg_stop;
 };
-#endif
 
 extern ssize_t otg_show_usb_phy_setting(char *buf);
 extern ssize_t otg_store_usb_phy_setting(const char *buf, size_t count);

@@ -579,14 +579,6 @@ config PMIC8058_PWM
 	  purposes including software controlled brightness of backlight,
 	  motor control, and waveform generation.
 
-config PMIC8058_VIBRATOR
-	tristate "Qualcomm PM8058 vibrator support"
-	depends on PMIC8058 && ANDROID_TIMED_OUTPUT
-	default n
-	help
-	  This option enables device driver support for the vibrator
-	  on Qualcomm PM8058 chip.
-
 config PMIC8XXX_VIBRATOR
 	tristate "Qualcomm Vibrator support for PMIC8XXX"
 	depends on MFD_PM8XXX && ANDROID_TIMED_OUTPUT
@@ -675,10 +667,6 @@ config CABLE_DETECT_8X55
 
 config CABLE_DETECT_ACCESSORY
         boolean "CABLE ACCESSORY DETECT"
-        default n
-
-config CABLE_DETECT_ACCESSORY_BY_ADC
-        boolean "DETECT ACCESSORY BY PMIC ADC"
         default n
 
 config CABLE_DETECT_GPIO_DOCK
