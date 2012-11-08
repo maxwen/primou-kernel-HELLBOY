@@ -163,15 +163,22 @@ primou_backlight_switch(int on)
 	if (on) {
 		PR_DISP_DEBUG("[BKL] turn on backlight\n");
 		set_bit(GATE_ON, &cabc.status);
+
 		val = cabc.lcd_backlight.brightness;
 		/*LED core uses get_brightness for default value
 		If the physical layer is not ready, we should not count on it*/
-		if (val == 0)
+		if (val == 0){
 			val = brightness_value;
+            		PR_DISP_DEBUG("[BKL] set initial backlight value from brightness_value %d\n", val);
+        	} else {
+            		PR_DISP_DEBUG("[BKL] set initial backlight value from cabc.lcd_backlight.brightness %d\n", val);
+        	}
 		primou_set_brightness(&cabc.lcd_backlight, val);
 	} else {
+		PR_DISP_DEBUG("[BKL] turn off backlight\n");
 		clear_bit(GATE_ON, &cabc.status);
 		cabc.last_shrink_br = 0;
+        	brightness_value = 0;
 	}
 }
 static int
@@ -180,14 +187,14 @@ primou_cabc_switch(int on)
 	struct msm_mddi_client_data *client = cabc.client_data;
 
 	if (on) {
-		printk(KERN_DEBUG "turn on CABC\n");
+		PR_DISP_DEBUG("[BKL] turn on CABC\n");
 		set_bit(CABC_STATE, &cabc.status);
 		mutex_lock(&cabc.lock);
 		client->remote_write(client, 0x03, 0x5500);
 		client->remote_write(client, 0x2C, 0x5300);
 		mutex_unlock(&cabc.lock);
 	} else {
-		printk(KERN_DEBUG "turn off CABC\n");
+		PR_DISP_DEBUG("[BKL] turn off CABC\n");
 		clear_bit(CABC_STATE, &cabc.status);
 		mutex_lock(&cabc.lock);
 		client->remote_write(client, 0x00, 0x5500);
@@ -223,7 +230,7 @@ auto_backlight_store(struct device *dev, struct device_attribute *attr,
 
 	rc = strict_strtoul(buf, 10, &res);
 	if (rc) {
-		printk(KERN_ERR "invalid parameter, %s %d\n", buf, rc);
+		PR_DISP_DEBUG("[BLK] invalid parameter, %s %d\n", buf, rc);
 		count = -EINVAL;
 		goto err_out;
 	}
@@ -241,10 +248,10 @@ primou_ce_switch(int on)
 	struct msm_mddi_client_data *client = cabc.client_data;
 
 	if (on) {
-		printk(KERN_DEBUG "turn on color enhancement\n");
+		PR_DISP_DEBUG("[BLK] turn on color enhancement\n");
 		client->remote_write(client, 0x10, 0xb400);
 	} else {
-		printk(KERN_DEBUG "turn off color enhancement\n");
+		PR_DISP_DEBUG("[BLK] turn off color enhancement\n");
 		client->remote_write(client, 0x00, 0xb400);
 	}
 	color_enhance_switch = on;
@@ -278,7 +285,7 @@ ce_switch_store(struct device *dev, struct device_attribute *attr,
 
 	rc = strict_strtoul(buf, 10, &res);
 	if (rc) {
-		printk(KERN_ERR "invalid parameter, %s %d\n", buf, rc);
+		PR_DISP_DEBUG("[BLK] invalid parameter, %s %d\n", buf, rc);
 		count = -EINVAL;
 		goto err_out;
 	}
