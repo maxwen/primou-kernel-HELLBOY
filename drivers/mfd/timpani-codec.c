@@ -20,6 +20,7 @@
 #include <linux/debugfs.h>
 #include <linux/uaccess.h>
 #include <linux/string.h>
+#include <mach/debug_mm.h>
 
 /* Timpani codec driver is activated through Marimba core driver */
 
@@ -2850,7 +2851,7 @@ static int timpani_adie_set_device_analog_volume(struct adie_codec_path *path_pt
 
 	/* To support adjusting analog volume along with Beats effect
 	 * Only do gain changes for headset currently */
-	pr_aud_info("%s, channel = %d, volume = 0x%X\n", __func__, num_channels, volume);
+	MM_AUD_INFO("%s, channel = %d, volume = 0x%X\n", __func__, num_channels, volume);
 
 	/* Apply indicated analog gain to left channel */
 	if (num_channels > 0)

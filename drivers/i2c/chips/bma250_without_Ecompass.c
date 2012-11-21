@@ -25,12 +25,13 @@
 
 /*#define EARLY_SUSPEND_BMA 1*/
 
-#define D(x...) printk(KERN_DEBUG "[GSNR][BMA250 NO_COMP] " x)
-#define I(x...) printk(KERN_INFO "[GSNR][BMA250 NO_COMP] " x)
-#define E(x...) printk(KERN_ERR "[GSNR][BMA250 NO_COMP ERROR] " x)
+#define D(x...) pr_debug("[GSNR][BMA250 NO_COMP] " x)
+#define I(x...) pr_info("[GSNR][BMA250 NO_COMP] " x)
+#define E(x...) pr_err("[GSNR][BMA250 NO_COMP ERROR] " x)
+
 #define DIF(x...) \
 	if (debug_flag) \
-		printk(KERN_DEBUG "[GSNR][BMA250 NO_COMP DEBUG] " x)
+		pr_err("[GSNR][BMA250 NO_COMP DEBUG] " x)
 
 #define DEFAULT_RANGE	BMA_RANGE_2G
 #define DEFAULT_BW	BMA_BW_31_25HZ

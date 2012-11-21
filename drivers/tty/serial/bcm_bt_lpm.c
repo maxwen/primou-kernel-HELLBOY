@@ -58,7 +58,7 @@ static void set_wake_locked(int wake)
 		return;
 	bt_lpm.wake = wake;
 
-	printk(KERN_ERR "[BT] %s wake=%d\n", __func__, wake);
+	pr_debug("[BT] %s wake=%d\n", __func__, wake);
 
 	gpio_set_value(bt_lpm.gpio_wake, wake);
 	if (wake || bt_lpm.host_wake)
@@ -71,7 +71,7 @@ static void set_wake_locked(int wake)
 static enum hrtimer_restart enter_lpm(struct hrtimer *timer) {
 	unsigned long flags;
 
-	printk(KERN_ERR "[BT] %s\n", __func__);
+	pr_debug("[BT] %s\n", __func__);
 
 	spin_lock_irqsave(&bt_lpm.uport->lock, flags);
 	set_wake_locked(0);
@@ -81,7 +81,7 @@ static enum hrtimer_restart enter_lpm(struct hrtimer *timer) {
 }
 
 void bcm_bt_lpm_exit_lpm_locked(struct uart_port *uport) {
-	printk(KERN_ERR "[BT] %s\n", __func__);
+	pr_debug("[BT] %s\n", __func__);
 
 	bt_lpm.uport = uport;
 
@@ -97,7 +97,7 @@ EXPORT_SYMBOL(bcm_bt_lpm_exit_lpm_locked);
 
 static void update_host_wake_locked(int host_wake)
 {
-	printk(KERN_ERR "[BT] %s\n", __func__);
+	pr_debug("[BT] %s\n", __func__);
 	if (host_wake == bt_lpm.host_wake)
 		return;
 	bt_lpm.host_wake = host_wake;
@@ -115,7 +115,7 @@ static irqreturn_t host_wake_isr(int irq, void *dev)
 
 	host_wake = gpio_get_value(bt_lpm.gpio_host_wake);
 
-	printk(KERN_INFO "[BT] %s host_wake=%d\n", __func__, host_wake);
+	pr_debug("[BT] %s host_wake=%d\n", __func__, host_wake);
 	irq_set_irq_type(irq, host_wake ? IRQF_TRIGGER_LOW : IRQF_TRIGGER_HIGH);
 
 	if (!bt_lpm.uport) {
@@ -139,7 +139,7 @@ static int bcm_bt_lpm_probe(struct platform_device *pdev)
 	struct bcm_bt_lpm_platform_data *pdata = pdev->dev.platform_data;
 
 	if (bt_lpm.request_clock_off_locked != NULL) {
-		printk(KERN_ERR "Cannot register two bcm_bt_lpm drivers\n");
+		pr_err("Cannot register two bcm_bt_lpm drivers\n");
 		return -EINVAL;
 	}
 
@@ -164,6 +164,7 @@ static int bcm_bt_lpm_probe(struct platform_device *pdev)
 	if (ret)
 		return ret;
 
+	pr_info("[BT] bcm_bt_lpm init ok");
 	return 0;
 }
 

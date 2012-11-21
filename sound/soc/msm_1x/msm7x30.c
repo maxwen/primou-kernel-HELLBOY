@@ -99,11 +99,11 @@ static int msm_v_call_put(struct snd_kcontrol *kcontrol,
 {
 	int start = ucontrol->value.integer.value[0];
 	if (start) {
-		pr_aud_info("[ALSA] msm_start_voice");
+		MM_AUD_INFO("[ALSA] msm_start_voice");
 		broadcast_event(AUDDEV_EVT_START_VOICE, DEVICE_IGNORE,
 							SESSION_IGNORE);
 	} else {
-		pr_aud_info("[ALSA] msm_end_voice");
+		MM_AUD_INFO("[ALSA] msm_end_voice");
 		broadcast_event(AUDDEV_EVT_END_VOICE, DEVICE_IGNORE,
 							SESSION_IGNORE);
 	}
@@ -132,7 +132,7 @@ static int msm_v_mute_put(struct snd_kcontrol *kcontrol,
 {
 	int dir = ucontrol->value.integer.value[0];
 	int mute = ucontrol->value.integer.value[1];
-	pr_aud_info("[ALSA] msm_set_voice_tx_mute: mute %d\n", mute);
+	MM_AUD_INFO("[ALSA] msm_set_voice_tx_mute: mute %d\n", mute);
 	return msm_set_voice_mute(dir, mute);
 }
 
@@ -159,7 +159,7 @@ static int msm_v_volume_put(struct snd_kcontrol *kcontrol,
 	int dir = ucontrol->value.integer.value[0];
 	int volume = ucontrol->value.integer.value[1];
 
-	pr_aud_info("[ALSA] msm_set_voice_rx_vol: volume %d\n", volume);
+	MM_AUD_INFO("[ALSA] msm_set_voice_rx_vol: volume %d\n", volume);
 	if (volume < 0) /*set rx mute/unmute.*/
 		return msm_set_voice_mute(1, volume == -100 ? 1 : 0);
 	else
@@ -190,7 +190,7 @@ static int msm_volume_put(struct snd_kcontrol *kcontrol,
 	int volume = ucontrol->value.integer.value[1];
 	u32 session_mask = 0;
 
-	pr_aud_info("[ALSA] msm_set_volume: volume %d\n", volume);
+	MM_AUD_INFO("[ALSA] msm_set_volume: volume %d\n", volume);
 	if ((volume < 0) || (volume > 10000))
 		return -EINVAL;
 
@@ -203,7 +203,7 @@ static int msm_volume_put(struct snd_kcontrol *kcontrol,
 	session_mask = (0x1 << (session_id) << (8 * ((int)AUDDEV_CLNT_DEC-1)));
 	msm_vol_ctl.volume = volume;
 	MM_DBG("session_id %d, volume %d", session_id, volume);
-	pr_aud_info("[ALSA] msm_set_volume: vsession_id %d, volume %d", session_id, volume);
+	MM_AUD_INFO("[ALSA] msm_set_volume: vsession_id %d, volume %d", session_id, volume);
 	broadcast_event(AUDDEV_EVT_STREAM_VOL_CHG, DEVICE_IGNORE,
 							session_mask);
 
@@ -239,16 +239,16 @@ static int msm_voice_put(struct snd_kcontrol *kcontrol,
 
 	/* if (!set)
 		return -EPERM; */
-	pr_aud_info("[ALSA] msm_route_voice: "
+	MM_AUD_INFO("[ALSA] msm_route_voice: "
 		"tx %d, rx %d, set %d\n",
 		(int) ucontrol->value.integer.value[1],
 		(int) ucontrol->value.integer.value[0],
 		set);
 
 	if (set) {
-		pr_aud_info("[ATS][phonecall_start][successful]\n");
+		MM_AUD_INFO("[ATS][phonecall_start][successful]\n");
 	} else {
-		pr_aud_info("[ATS][phonecall_end][successful]\n");
+		MM_AUD_INFO("[ATS][phonecall_end][successful]\n");
 	}
 
 	/* Rx Device Routing */
@@ -256,13 +256,13 @@ static int msm_voice_put(struct snd_kcontrol *kcontrol,
 	rx_dev_info = audio_dev_ctrl_find_dev(rx_dev_id);
 
 	if (IS_ERR(rx_dev_info)) {
-		pr_aud_err("pass invalid dev_id\n");
+		MM_AUD_ERR("pass invalid dev_id\n");
 		rc = PTR_ERR(rx_dev_info);
 		return rc;
 	}
 
 	if (!(rx_dev_info->capability & SNDDEV_CAP_RX)) {
-		pr_aud_err("First Dev is supposed to be RX\n");
+		MM_AUD_ERR("First Dev is supposed to be RX\n");
 		return -EFAULT;
 	}
 
@@ -300,13 +300,13 @@ static int msm_voice_put(struct snd_kcontrol *kcontrol,
 	tx_dev_info = audio_dev_ctrl_find_dev(tx_dev_id);
 
 	if (IS_ERR(tx_dev_info)) {
-		pr_aud_err("pass invalid dev_id\n");
+		MM_AUD_ERR("pass invalid dev_id\n");
 		rc = PTR_ERR(tx_dev_info);
 		return rc;
 	}
 
 	if (!(tx_dev_info->capability & SNDDEV_CAP_TX)) {
-		pr_aud_err("Second Dev is supposed to be Tx\n");
+		MM_AUD_ERR("Second Dev is supposed to be Tx\n");
 		return -EFAULT;
 	}
 
@@ -385,12 +385,12 @@ static int msm_device_put(struct snd_kcontrol *kcontrol,
 	route_cfg.dev_id = ucontrol->id.numid - device_index;
 	dev_info = audio_dev_ctrl_find_dev(route_cfg.dev_id);
 	if (IS_ERR(dev_info)) {
-		pr_aud_err("pass invalid dev_id\n");
+		MM_AUD_ERR("pass invalid dev_id\n");
 		rc = PTR_ERR(dev_info);
 		return rc;
 	}
-	pr_aud_info("device %s set %d\n", dev_info->name, set);
-	pr_aud_info("[ALSA] msm_en_device (dev %s, id %d, enable %d, opened %d)\n",
+	MM_AUD_INFO("device %s set %d\n", dev_info->name, set);
+	MM_AUD_INFO("[ALSA] msm_en_device (dev %s, id %d, enable %d, opened %d)\n",
 		dev_info->name, route_cfg.dev_id, set, dev_info->opened);
 	if (set) {
 		if (!dev_info->opened) {
@@ -406,10 +406,10 @@ static int msm_device_put(struct snd_kcontrol *kcontrol,
 				set_freq = dev_info->sample_rate;
 
 
-			pr_aud_info("device freq =%d\n", set_freq);
+			MM_AUD_INFO("device freq =%d\n", set_freq);
 			rc = dev_info->dev_ops.set_freq(dev_info, set_freq);
 			if (rc < 0) {
-				pr_aud_err("device freq failed!\n");
+				MM_AUD_ERR("device freq failed!\n");
 				return rc;
 			}
 			dev_info->set_sample_rate = rc;
@@ -420,11 +420,11 @@ static int msm_device_put(struct snd_kcontrol *kcontrol,
 			} while (rc < 0 && retry);
 
 			if (rc < 0) {
-				pr_aud_err("Enabling %s failed, rc=%d\n", dev_info->name, rc);
+				MM_AUD_ERR("Enabling %s failed, rc=%d\n", dev_info->name, rc);
 				return rc;
 			}
 			dev_info->opened = 1;
-			pr_aud_info("set device %s opened as %d\n",
+			MM_AUD_INFO("set device %s opened as %d\n",
 				dev_info->name, dev_info->opened);
 			broadcast_event(AUDDEV_EVT_DEV_RDY, route_cfg.dev_id,
 							SESSION_IGNORE);
@@ -458,11 +458,11 @@ static int msm_device_put(struct snd_kcontrol *kcontrol,
 						SESSION_IGNORE);
 			rc = dev_info->dev_ops.close(dev_info);
 			if (rc < 0) {
-				pr_aud_err("Snd device failed close!\n");
+				MM_AUD_ERR("Snd device failed close!\n");
 				return rc;
 			} else {
 				dev_info->opened = 0;
-				pr_aud_info("set device %s opened as %d\n",
+				MM_AUD_INFO("set device %s opened as %d\n",
 					dev_info->name, dev_info->opened);
 				broadcast_event(AUDDEV_EVT_DEV_RLS,
 					route_cfg.dev_id,
@@ -485,7 +485,7 @@ static int msm_device_get(struct snd_kcontrol *kcontrol,
 	dev_info = audio_dev_ctrl_find_dev(route_cfg.dev_id);
 
 	if (IS_ERR(dev_info)) {
-		pr_aud_err("pass invalid dev_id\n");
+		MM_AUD_ERR("pass invalid dev_id\n");
 		rc = PTR_ERR(dev_info);
 		return rc;
 	}
@@ -528,7 +528,7 @@ static int msm_route_put(struct snd_kcontrol *kcontrol,
 	u32 session_mask = 0;
 	route_cfg.dev_id = ucontrol->value.integer.value[1];
 
-	pr_aud_info("[ALSA] msm_route_stream: session %d, dev %d, enable %d\n",
+	MM_AUD_INFO("[ALSA] msm_route_stream: session %d, dev %d, enable %d\n",
 		session_id, route_cfg.dev_id, set);
 	if (ucontrol->id.numid == 2)
 		route_cfg.stream_type =	AUDIO_ROUTE_STREAM_PLAYBACK;
@@ -540,7 +540,7 @@ static int msm_route_put(struct snd_kcontrol *kcontrol,
 	dev_info = audio_dev_ctrl_find_dev(route_cfg.dev_id);
 
 	if (IS_ERR(dev_info)) {
-		pr_aud_err("pass invalid dev_id\n");
+		MM_AUD_ERR("pass invalid dev_id\n");
 		rc = PTR_ERR(dev_info);
 		return rc;
 	}
@@ -616,7 +616,7 @@ static int msm_route_put(struct snd_kcontrol *kcontrol,
 	}
 
 	if (rc < 0) {
-		pr_aud_err("device could not be assigned!\n");
+		MM_AUD_ERR("device could not be assigned!\n");
 		return -EFAULT;
 	}
 
@@ -661,7 +661,7 @@ static int msm_device_volume_put(struct snd_kcontrol *kcontrol,
 
 	if (IS_ERR(dev_info)) {
 		rc = PTR_ERR(dev_info);
-		pr_aud_err("audio_dev_ctrl_find_dev failed. %ld\n",
+		MM_AUD_ERR("audio_dev_ctrl_find_dev failed. %ld\n",
 				PTR_ERR(dev_info));
 		return rc;
 	}
@@ -672,7 +672,7 @@ static int msm_device_volume_put(struct snd_kcontrol *kcontrol,
 	if (dev_info->dev_ops.set_device_volume)
 		rc = dev_info->dev_ops.set_device_volume(dev_info, volume);
 	else {
-		pr_aud_info("device %s does not support device volume "
+		MM_AUD_INFO("device %s does not support device volume "
 				"control.", dev_info->name);
 		return -EPERM;
 	}
@@ -687,13 +687,13 @@ static int snd_dev_ctl_index(int idx)
 	struct msm_snddev_info *dev_info;
 
 	if (idx < 0 || idx >= AUDIO_DEV_CTL_MAX_DEV) {
-		pr_aud_err("pass invalid idx\n");
+		MM_AUD_ERR("pass invalid idx\n");
 		return -EINVAL;
 	}
 
 	dev_info = audio_dev_ctrl_find_dev(idx);
 	if (IS_ERR(dev_info)) {
-		pr_aud_err("pass invalid dev_id\n");
+		MM_AUD_ERR("pass invalid dev_id\n");
 		return PTR_ERR(dev_info);
 	}
 	if (sizeof(dev_info->name) <= 44)
@@ -752,7 +752,7 @@ static int msm_new_mixer(struct snd_soc_codec *codec)
 		err = snd_ctl_add(codec->card->snd_card,
 			snd_ctl_new1(&snd_msm_controls[idx], NULL));
 		if (err < 0)
-			pr_aud_err("ERR adding ctl\n");
+			MM_AUD_ERR("ERR adding ctl\n");
 	}
 	dev_cnt = msm_snddev_devcount();
 
@@ -761,7 +761,7 @@ static int msm_new_mixer(struct snd_soc_codec *codec)
 			err = snd_ctl_add(codec->card->snd_card,
 				snd_ctl_new1(&snd_dev_controls[idx], NULL));
 			if (err < 0)
-				pr_aud_err("ERR adding ctl\n");
+				MM_AUD_ERR("ERR adding ctl\n");
 		} else
 			return 0;
 	}
@@ -777,7 +777,7 @@ static int msm_soc_dai_init(
 	struct snd_soc_codec *codec = rtd->codec;
 	ret = msm_new_mixer(codec);
 	if (ret < 0)
-		pr_aud_err("msm_soc: ALSA MSM Mixer Fail\n");
+		MM_AUD_ERR("msm_soc: ALSA MSM Mixer Fail\n");
 
 	mutex_init(&the_locks.lock);
 	mutex_init(&the_locks.write_lock);

@@ -34,11 +34,11 @@
 #endif
 
 #define LED_DBG_LOG(fmt, ...) \
-		printk(KERN_DEBUG "[LED]" fmt, ##__VA_ARGS__)
+		pr_debug("[LED]" fmt, ##__VA_ARGS__)
 #define LED_INFO_LOG(fmt, ...) \
-		printk(KERN_INFO "[LED]" fmt, ##__VA_ARGS__)
+		pr_info("[LED]" fmt, ##__VA_ARGS__)
 #define LED_ERR_LOG(fmt, ...) \
-		printk(KERN_ERR "[LED][ERR]" fmt, ##__VA_ARGS__)
+		pr_err("[LED][ERR]" fmt, ##__VA_ARGS__)
 
 /* static struct pw8058_pwm_config pwm_conf; */
 static struct workqueue_struct *g_led_work_queue;

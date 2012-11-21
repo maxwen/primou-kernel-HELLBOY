@@ -123,12 +123,12 @@ primou_set_brightness(struct led_classdev *led_cdev,
 				PWM_NOVATEK_MIN, PWM_NOVATEK_MAX);
 
 	if (!client) {
-		PR_DISP_INFO("null mddi client");
+		PR_DISP_DEBUG("null mddi client");
 		return;
 	}
 
 	if (cabc.last_shrink_br == shrink_br) {
-		PR_DISP_INFO("[BKL] identical shrink_br");
+		PR_DISP_DEBUG("[BKL] identical shrink_br");
 		return;
 	}
 
@@ -145,7 +145,7 @@ primou_set_brightness(struct led_classdev *led_cdev,
 	brightness_value = val;
 	mutex_unlock(&cabc.lock);
 
-	PR_DISP_INFO("[BKL] set brightness to %d\n", shrink_br);
+	PR_DISP_DEBUG("[BKL] set brightness to %d\n", shrink_br);
 }
 
 static enum led_brightness
@@ -178,7 +178,6 @@ primou_backlight_switch(int on)
 		PR_DISP_DEBUG("[BKL] turn off backlight\n");
 		clear_bit(GATE_ON, &cabc.status);
 		cabc.last_shrink_br = 0;
-        	brightness_value = 0;
 	}
 }
 static int

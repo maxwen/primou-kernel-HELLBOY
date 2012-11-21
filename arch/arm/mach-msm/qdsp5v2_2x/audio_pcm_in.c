@@ -205,7 +205,7 @@ static void pcm_in_listener(u32 evt_id, union auddev_evt_data *evt_payload,
 		break;
 	}
 	default:
-		pr_aud_err("wrong event %d\n", evt_id);
+		MM_AUD_ERR("wrong event %d\n", evt_id);
 		break;
 	}
 }
@@ -219,7 +219,7 @@ static void audpreproc_dsp_event(void *data, unsigned id,  void *msg)
 	case AUDPREPROC_ERROR_MSG: {
 		struct audpreproc_err_msg *err_msg = msg;
 
-		pr_aud_err("ERROR_MSG: stream id %d err idx %d\n",
+		MM_AUD_ERR("ERROR_MSG: stream id %d err idx %d\n",
 		err_msg->stream_id, err_msg->aud_preproc_err_idx);
 		/* Error case */
 		wake_up(&audio->wait_enable);
@@ -255,10 +255,10 @@ static void audpreproc_dsp_event(void *data, unsigned id,  void *msg)
 		break;
 	}
 	case ADSP_MESSAGE_ID:
-		pr_aud_info("audpre: enable/disable done\n");
+		MM_AUD_INFO("audpre: enable/disable done\n");
 		break;
 	default:
-		pr_aud_info("Unknown Event id %d\n", id);
+		MM_AUD_INFO("Unknown Event id %d\n", id);
 	}
 }
 
@@ -282,7 +282,7 @@ static void audrec_dsp_event(void *data, unsigned id, size_t len,
 		struct audrec_fatal_err_msg fatal_err_msg;
 
 		getevent(&fatal_err_msg, AUDREC_FATAL_ERR_MSG_LEN);
-		pr_aud_err("FATAL_ERR_MSG: err id %d\n",
+		MM_AUD_ERR("FATAL_ERR_MSG: err id %d\n",
 				fatal_err_msg.audrec_err_id);
 		/* Error stop the encoder */
 		audio->stopped = 1;
@@ -307,7 +307,7 @@ static void audrec_dsp_event(void *data, unsigned id, size_t len,
 		MM_DBG("audrec: enable/disable done\n");
 		break;
 	default:
-		pr_aud_info("Unknown Event id %d\n", id);
+		MM_AUD_INFO("Unknown Event id %d\n", id);
 	}
 }
 
@@ -452,12 +452,12 @@ static int audpcm_in_enable(struct audio_in *audio)
 		return 0;
 
 	if (audpreproc_enable(audio->enc_id, &audpreproc_dsp_event, audio)) {
-		pr_aud_err("msm_adsp_enable(audpreproc) failed\n");
+		MM_AUD_ERR("msm_adsp_enable(audpreproc) failed\n");
 		return -ENODEV;
 	}
 
 	if (msm_adsp_enable(audio->audrec)) {
-		pr_aud_err("msm_adsp_enable(audrec) failed\n");
+		MM_AUD_ERR("msm_adsp_enable(audrec) failed\n");
 		audpreproc_disable(audio->enc_id, audio);
 		return -ENODEV;
 	}
@@ -721,7 +721,7 @@ static ssize_t audpcm_in_read(struct file *file,
 			count -= size;
 			buf += size;
 		} else {
-			pr_aud_err("short read... count %d, size %d\n",
+			MM_AUD_ERR("short read... count %d, size %d\n",
 					count, size);
 			break;
 		}
@@ -764,7 +764,7 @@ static int audpcm_in_release(struct inode *inode, struct file *file)
 
 	getnstimeofday(&ts);
 	rtc_time_to_tm(ts.tv_sec, &tm);
-	pr_aud_info1("[ATS][stop_recording][successful] at %lld \
+	MM_AUD_INFO("[ATS][stop_recording][successful] at %lld \
 		(%d-%02d-%02d %02d:%02d:%02d.%09lu UTC)\n",
 		ktime_to_ns(ktime_get()),
 		tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday,
@@ -797,7 +797,7 @@ static int audpcm_in_open(struct inode *inode, struct file *file)
 	encid = audpreproc_aenc_alloc(audio->enc_type, &audio->module_name,
 			&audio->queue_ids);
 	if (encid < 0) {
-		pr_aud_err("No free encoder available\n");
+		MM_AUD_ERR("No free encoder available\n");
 		rc = -ENODEV;
 		goto done;
 	}
@@ -825,7 +825,7 @@ static int audpcm_in_open(struct inode *inode, struct file *file)
 					AUDDEV_CLNT_ENC, audio->enc_id,
 					pcm_in_listener, (void *) audio);
 	if (rc) {
-		pr_aud_err("failed to register device event listener\n");
+		MM_AUD_ERR("failed to register device event listener\n");
 		goto evt_error;
 	}
 	file->private_data = audio;
@@ -835,7 +835,7 @@ done:
 	mutex_unlock(&audio->lock);
 	getnstimeofday(&ts);
 	rtc_time_to_tm(ts.tv_sec, &tm);
-	pr_aud_info1("[ATS][start_recording][successful] at %lld \
+	MM_AUD_INFO("[ATS][start_recording][successful] at %lld \
 		(%d-%02d-%02d %02d:%02d:%02d.%09lu UTC)\n",
 		ktime_to_ns(ktime_get()),
 		tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday,
@@ -871,7 +871,7 @@ static int __init audpcm_in_init(void)
 		(int) the_audio_in.data, (int) the_audio_in.phys);
 
 	if (!the_audio_in.data) {
-		pr_aud_err("Unable to allocate DMA buffer\n");
+		MM_AUD_ERR("Unable to allocate DMA buffer\n");
 		return -ENOMEM;
 	}
 	mutex_init(&the_audio_in.lock);

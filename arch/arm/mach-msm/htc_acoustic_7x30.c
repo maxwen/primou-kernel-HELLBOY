@@ -34,6 +34,7 @@
 
 #include <mach/htc_acdb.h>
 #include <mach/htc_acoustic_7x30.h>
+#include <mach/debug_mm.h>
 
 #define ACOUSTIC_IOCTL_MAGIC 'p'
 #define ACOUSTIC_ADIE_SIZE	_IOW(ACOUSTIC_IOCTL_MAGIC, 15, size_t)
@@ -123,7 +124,7 @@ static int is_rpc_connect(void)
 		endpoint = msm_rpc_connect(HTCPROG,
 				HTCVERS, 0);
 		if (IS_ERR(endpoint)) {
-			pr_aud_err("%s: init rpc failed! rc = %ld\n",
+			MM_AUD_ERR("%s: init rpc failed! rc = %ld\n",
 				__func__, PTR_ERR(endpoint));
 			mutex_unlock(&rpc_connect_lock);
 			return -1;
@@ -262,7 +263,7 @@ acoustic_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
 			rc = -EFAULT;
 			break;
 		}
-		pr_aud_info("%s update ACDB ID : (%d, %d, %d, %d)\n",
+		MM_AUD_INFO("%s update ACDB ID : (%d, %d, %d, %d)\n",
 			__func__,
 			cur_acdb_id.tx_dev_id,
 			cur_acdb_id.rx_dev_id,
@@ -531,7 +532,7 @@ static DEVICE_ATTR(sysattr, 0644, attr_show, attr_store);
 
 int enable_mic_bias(int on)
 {
-	pr_aud_info("%s called %d\n", __func__, on);
+	MM_AUD_INFO("%s called %d\n", __func__, on);
 	if (the_ops->enable_mic_bias)
 		the_ops->enable_mic_bias(on, 1);
 
@@ -546,7 +547,7 @@ static int __init acoustic_init(void)
 	mutex_init(&rpc_connect_lock);
 	ret = misc_register(&acoustic_misc);
 	if (ret < 0) {
-		pr_aud_err("failed to register misc device!\n");
+		MM_AUD_ERR("failed to register misc device!\n");
 		return ret;
 	}
 

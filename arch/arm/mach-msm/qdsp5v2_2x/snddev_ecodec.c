@@ -63,7 +63,7 @@ static int snddev_ecodec_open_rx(struct snddev_ecodec_state *ecodec)
 		/* request GPIO */
 		rc = aux_pcm_gpios_request();
 		if (rc) {
-			pr_aud_err("GPIO enable failed\n");
+			MM_AUD_ERR("GPIO enable failed\n");
 			goto done;
 		}
 		/* config clocks */
@@ -145,7 +145,7 @@ static int snddev_ecodec_open_tx(struct snddev_ecodec_state *ecodec)
 	if (!drv->rx_active) {
 		rc = aux_pcm_gpios_request();
 		if (rc) {
-			pr_aud_err("GPIO enable failed\n");
+			MM_AUD_ERR("GPIO enable failed\n");
 			goto done;
 		}
 		/* config clocks */
@@ -228,7 +228,7 @@ static int snddev_ecodec_open(struct msm_snddev_info *dev_info)
 	}
 
 	ecodec = dev_info->private_data;
-	pr_aud_info("snddev_ecodec_open: device %s\n", dev_info->name);
+	MM_AUD_INFO("snddev_ecodec_open: device %s\n", dev_info->name);
 
 	if (audio_ops->bt_sco_enable)
 		audio_ops->bt_sco_enable(1);
@@ -271,7 +271,7 @@ static int snddev_ecodec_close(struct msm_snddev_info *dev_info)
 	}
 
 	ecodec = dev_info->private_data;
-	pr_aud_info("snddev_icodec_open: device %s\n", dev_info->name);
+	MM_AUD_INFO("snddev_icodec_open: device %s\n", dev_info->name);
 
 	if (audio_ops->bt_sco_enable)
 		audio_ops->bt_sco_enable(0);
@@ -387,7 +387,7 @@ static int __init snddev_ecodec_init(void)
 	int rc = 0;
 	struct snddev_ecodec_drv_state *ecodec_drv = &snddev_ecodec_drv;
 
-	pr_aud_info("snddev_ecodec_init\n");
+	MM_AUD_INFO("snddev_ecodec_init\n");
 	rc = platform_driver_register(&snddev_ecodec_driver);
 	if (IS_ERR_VALUE(rc))
 		goto error_platform_driver;
@@ -410,7 +410,7 @@ error_ecodec_clk:
 	platform_driver_unregister(&snddev_ecodec_driver);
 error_platform_driver:
 
-	pr_aud_err("encounter error\n");
+	MM_AUD_ERR("encounter error\n");
 	return -ENODEV;
 }
 

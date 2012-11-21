@@ -90,7 +90,7 @@ EXPORT_SYMBOL(msm_get_call_state);
 
 int msm_set_voice_mute(int dir, int mute)
 {
-	pr_aud_info("dir %x mute %x\n", dir, mute);
+	MM_AUD_INFO("dir %x mute %x\n", dir, mute);
         if (!audio_dev_ctrl.voice_rx_dev
                 || !audio_dev_ctrl.voice_tx_dev)
                 return -EPERM;
@@ -137,7 +137,7 @@ void msm_snddev_register(struct msm_snddev_info *dev_info)
 		dev_info->sessions = 0x0;
 		audio_dev_ctrl.num_dev++;
 	} else
-		pr_aud_err("%s: device registry max out\n", __func__);
+		MM_AUD_ERR("%s: device registry max out\n", __func__);
 	mutex_unlock(&session_lock);
 }
 EXPORT_SYMBOL(msm_snddev_register);
@@ -216,7 +216,7 @@ int msm_set_voc_route(struct msm_snddev_info *dev_info,
 	u32 session_mask = 0;
 
 	if (dev_info == NULL) {
-		pr_aud_err("%s: invalid device info\n", __func__);
+		MM_AUD_ERR("%s: invalid device info\n", __func__);
 		return -EINVAL;
 	}
 	mutex_lock(&session_lock);
@@ -392,7 +392,7 @@ int auddev_register_evt_listner(u32 evt_id, u32 clnt_type, u32 clnt_id,
 
 	new_cb = kzalloc(sizeof(struct msm_snd_evt_listner), GFP_KERNEL);
 	if (!new_cb) {
-		pr_aud_err("No memory to add new listener node\n");
+		MM_AUD_ERR("No memory to add new listener node\n");
 		return -ENOMEM;
 	}
 
@@ -602,7 +602,7 @@ int msm_snddev_enable_sidetone(u32 dev_id, u32 enable)
 	dev_info = audio_dev_ctrl_find_dev(dev_id);
 
 	if (IS_ERR(dev_info)) {
-		pr_aud_err("bad dev_id %d\n", dev_id);
+		MM_AUD_ERR("bad dev_id %d\n", dev_id);
 		rc = -EINVAL;
 	} else if (!dev_info->dev_ops.enable_sidetone) {
 		MM_DBG("dev %d no sidetone support\n", dev_id);
@@ -680,7 +680,7 @@ static long audio_dev_ctrl_ioctl(struct file *file, unsigned int cmd,
 		route_cfg.dev_id, route_cfg.stream_type);
 		dev_info = audio_dev_ctrl_find_dev(route_cfg.dev_id);
 		if (IS_ERR(dev_info)) {
-			pr_aud_err("%s: pass invalid dev_id\n", __func__);
+			MM_AUD_ERR("%s: pass invalid dev_id\n", __func__);
 			rc = PTR_ERR(dev_info);
 			break;
 		}
@@ -782,7 +782,7 @@ void broadcast_event(u32 evt_id, u32 dev_id, u32 session_id)
 			GFP_KERNEL);
 
 	if (!evt_payload) {
-		pr_aud_err("%s: fail to allocate memory\n", __func__);
+		MM_AUD_ERR("%s: fail to allocate memory\n", __func__);
 		return;
 	}
 
