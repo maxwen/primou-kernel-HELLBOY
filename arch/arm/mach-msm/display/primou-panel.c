@@ -178,6 +178,7 @@ primou_backlight_switch(int on)
 		PR_DISP_DEBUG("[BKL] turn off backlight\n");
 		clear_bit(GATE_ON, &cabc.status);
 		cabc.last_shrink_br = 0;
+                brightness_value = 0;
 	}
 }
 static int
