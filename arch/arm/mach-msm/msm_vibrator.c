@@ -25,9 +25,9 @@
 
 #include <mach/msm_rpcrouter.h>
 #define VIB_INFO_LOG(fmt, ...) \
-		printk(KERN_INFO "[VIB]" fmt, ##__VA_ARGS__)
+		pr_info("[VIB]" fmt, ##__VA_ARGS__)
 #define VIB_ERR_LOG(fmt, ...) \
-		printk(KERN_ERR "[VIB][ERR]" fmt, ##__VA_ARGS__)
+		pr_err("[VIB][ERR]" fmt, ##__VA_ARGS__)
 
 #define PM_LIBPROG      0x30000061
 #ifdef  CONFIG_RPC_VER_60001

@@ -1586,7 +1586,7 @@ void brcm_msm_hs_request_clock_off_locked(struct uart_port *uport)
 {
 	struct msm_hs_port *msm_uport = UARTDM_TO_MSM(uport);
 
-	printk(KERN_ERR "[BT] %s\n", __func__);
+	pr_debug("[BT] %s\n", __func__);
 	if (msm_uport->clk_state == MSM_HS_CLK_ON) {
 		msm_uport->clk_state = MSM_HS_CLK_REQUEST_OFF;
 		msm_uport->clk_req_off_state = CLK_REQ_OFF_START;
@@ -1615,7 +1615,7 @@ void brcm_msm_hs_request_clock_on_locked(struct uart_port *uport)
 	unsigned int data;
 	int ret = 0;
 
-	printk(KERN_ERR "[BT] %s\n", __func__);
+	pr_debug("[BT] %s\n", __func__);
 	switch (msm_uport->clk_state) {
 	case MSM_HS_CLK_OFF:
 		wake_lock(&msm_uport->dma_wake_lock);
@@ -2450,7 +2450,7 @@ void msm_hs_request_clock_off_locked(struct uart_port *uport)
 {
 	struct msm_hs_port *msm_uport = UARTDM_TO_MSM(uport);
 
-	printk(KERN_ERR "[BT] %s host_wakeup_level=%d\n", __func__, msm_uport->host_wakeup_level);
+	pr_debug("[BT] %s host_wakeup_level=%d\n", __func__, msm_uport->host_wakeup_level);
 
 	if (msm_uport->host_wakeup_level == 0) { /* host_wake is high */
 		msm_uport->host_want_sleep = 1;
@@ -2483,7 +2483,7 @@ void msm_hs_request_clock_on_locked(struct uart_port *uport)
 {
 	struct msm_hs_port *msm_uport = UARTDM_TO_MSM(uport);
 
-	printk(KERN_ERR "[BT] %s host_wakeup_level=%d\n", __func__, msm_uport->host_wakeup_level);
+	pr_debug("[BT] %s host_wakeup_level=%d\n", __func__, msm_uport->host_wakeup_level);
 
 	if (msm_uport->host_wakeup_level != 0) {	/* host_wake is low */
 		#ifdef BT_SERIAL_DBG

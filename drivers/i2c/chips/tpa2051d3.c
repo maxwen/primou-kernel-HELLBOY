@@ -101,14 +101,14 @@ static int tpa2051_i2c_write(char *txData, int length)
 		buf[0] = i;
 		buf[1] = txData[i];
 #if DEBUG
-		pr_info("i2c_write %d=%x\n", i, buf[1]);
+		MM_INFO("i2c_write %d=%x\n", i, buf[1]);
 #endif
 		msg->buf = buf;
 		retry = RETRY_CNT;
 		pass = 0;
 		while (retry--) {
 			if (i2c_transfer(this_client->adapter, msg, 1) < 0) {
-				pr_err("%s: I2C transfer error %d retry %d\n",
+				MM_ERR("%s: I2C transfer error %d retry %d\n",
 						__func__, i, retry);
 				msleep(20);
 			} else {
@@ -117,7 +117,7 @@ static int tpa2051_i2c_write(char *txData, int length)
 			}
 		}
 		if (pass == 0) {
-			pr_err("I2C transfer error, retry fail\n");
+			MM_ERR("I2C transfer error, retry fail\n");
 			return -EIO;
 		}
 	}
@@ -142,14 +142,14 @@ static int tpa2051_i2c_write_for_read(char *txData, int length)
 		buf[0] = i;
 		buf[1] = txData[i];
 #if DEBUG
-		pr_info("i2c_write %d=%x\n", i, buf[1]);
+		MM_INFO("i2c_write %d=%x\n", i, buf[1]);
 #endif
 		msg->buf = buf;
 		retry = RETRY_CNT;
 		pass = 0;
 		while (retry--) {
 			if (i2c_transfer(this_client->adapter, msg, 1) < 0) {
-				pr_err("%s: I2C transfer error %d retry %d\n",
+				MM_ERR("%s: I2C transfer error %d retry %d\n",
 						__func__, i, retry);
 				msleep(20);
 			} else {
@@ -158,7 +158,7 @@ static int tpa2051_i2c_write_for_read(char *txData, int length)
 			}
 		}
 		if (pass == 0) {
-			pr_err("I2C transfer error, retry fail\n");
+			MM_ERR("I2C transfer error, retry fail\n");
 			return -EIO;
 		}
 	}
@@ -179,7 +179,7 @@ static int tpa2051_i2c_read(char *rxData, int length)
 
 	rc = i2c_transfer(this_client->adapter, msgs, 1);
 	if (rc < 0) {
-		pr_err("%s: transfer error %d\n", __func__, rc);
+		MM_ERR("%s: transfer error %d\n", __func__, rc);
 		return rc;
 	}
 
@@ -187,7 +187,7 @@ static int tpa2051_i2c_read(char *rxData, int length)
 	{
 		int i = 0;
 		for (i = 0; i < length; i++)
-			pr_info("i2c_read %s: rx[%d] = %2x\n", __func__, i, \
+			MM_INFO("i2c_read %s: rx[%d] = %2x\n", __func__, i, \
 				rxData[i]);
 	}
 #endif
@@ -202,7 +202,7 @@ static int tpa2051d3_open(struct inode *inode, struct file *file)
 	mutex_lock(&spk_amp_lock);
 
 	if (tpa2051d3_opened) {
-		pr_err("%s: busy\n", __func__);
+		MM_ERR("%s: busy\n", __func__);
 		rc = -EBUSY;
 		goto done;
 	}
@@ -222,12 +222,12 @@ static int tpa2051d3_release(struct inode *inode, struct file *file)
 }
 void set_amp(int on, char *i2c_command)
 {
-	pr_info("%s: %d\n", __func__, on);
+	MM_INFO("%s: %d\n", __func__, on);
 	mutex_lock(&spk_amp_lock);
 	if (on && !last_spkamp_state) {
 		if (tpa2051_i2c_write(i2c_command, AMP_ON_CMD_LEN) == 0) {
 			last_spkamp_state = 1;
-			pr_info("%s: ON reg1=%x, reg2=%x\n",
+			MM_INFO("%s: ON reg1=%x, reg2=%x\n",
 				__func__, i2c_command[1], i2c_command[2]);
 		}
 	} else if (!on && last_spkamp_state) {
@@ -270,11 +270,11 @@ void set_beats_on(int en)
 	mutex_lock(&spk_amp_lock);
 	if (en) {
 		tpa2051_i2c_write(BEATS_AMP_ON, AMP_ON_CMD_LEN);
-		pr_info("%s: en(%d) reg_value[5]=%2x, reg_value[6]=%2x\n", __func__,  \
+		MM_INFO("%s: en(%d) reg_value[5]=%2x, reg_value[6]=%2x\n", __func__,  \
 				en, BEATS_AMP_ON[5], BEATS_AMP_ON[6]);
 	} else {
 		tpa2051_i2c_write(BEATS_AMP_OFF, AMP_ON_CMD_LEN);
-		pr_info("%s: en(%d)  reg_value[5]=%2x, reg_value[6]=%2x\n", __func__,  \
+		MM_INFO("%s: en(%d)  reg_value[5]=%2x, reg_value[6]=%2x\n", __func__,  \
 				en, BEATS_AMP_OFF[5], BEATS_AMP_OFF[6]);
 	}
 	mutex_unlock(&spk_amp_lock);
@@ -326,7 +326,7 @@ static long tpa2051d3_ioctl(struct file *file, unsigned int cmd,
 
 	switch (cmd) {
 	case TPA2051_WRITE_REG:
-		pr_info("%s: TPA2051_WRITE_REG\n", __func__);
+		MM_INFO("%s: TPA2051_WRITE_REG\n", __func__);
 		mutex_lock(&spk_amp_lock);
 		if (!last_spkamp_state) {
 			/* According to tpa2051d3 Spec */
@@ -334,7 +334,7 @@ static long tpa2051d3_ioctl(struct file *file, unsigned int cmd,
 		}
 		if (copy_from_user(reg_value, argp, sizeof(reg_value)))
 			goto err1;
-		pr_info("%s: reg_value[0]=%2x, reg_value[1]=%2x\n", __func__,  \
+		MM_INFO("%s: reg_value[0]=%2x, reg_value[1]=%2x\n", __func__,  \
 				reg_value[0], reg_value[1]);
 		rc = tpa2051_write_reg(reg_value[0], reg_value[1]);
 
@@ -384,39 +384,39 @@ err2:
 			return -EFAULT;
 
 		if (modeid > tpa2051_mode_cnt || modeid < 0) {
-			pr_err("unsupported tpa2051 mode %d\n", modeid);
+			MM_ERR("unsupported tpa2051 mode %d\n", modeid);
 			return -EINVAL;
 		}
 		rc = update_amp_parameter(modeid);
-		pr_info("set tpa2051 mode to %d\n", modeid);
+		MM_INFO("set tpa2051 mode to %d\n", modeid);
 		break;
 	case TPA2051_SET_PARAM:
 		cfg.cmd_data = 0;
 		tpa2051_mode_cnt = 0;
 		if (copy_from_user(&cfg, argp, sizeof(cfg))) {
-			pr_err("%s: copy from user failed.\n", __func__);
+			MM_ERR("%s: copy from user failed.\n", __func__);
 			return -EFAULT;
 		}
 
 		if (cfg.data_len <= 0) {
-			pr_err("%s: invalid data length %d\n",
+			MM_ERR("%s: invalid data length %d\n",
 					__func__, cfg.data_len);
 			return -EINVAL;
 		}
 		if (config_data == NULL)
 			config_data = kmalloc(cfg.data_len, GFP_KERNEL);
 		if (!config_data) {
-			pr_err("%s: out of memory\n", __func__);
+			MM_ERR("%s: out of memory\n", __func__);
 			return -ENOMEM;
 		}
 		if (copy_from_user(config_data, cfg.cmd_data, cfg.data_len)) {
-			pr_err("%s: copy data from user failed.\n", __func__);
+			MM_ERR("%s: copy data from user failed.\n", __func__);
 			kfree(config_data);
 			config_data = NULL;
 			return -EFAULT;
 		}
 		tpa2051_mode_cnt = cfg.mode_num;
-		pr_info("%s: update tpa2051 i2c commands #%d success.\n",
+		MM_INFO("%s: update tpa2051 i2c commands #%d success.\n",
 				__func__, cfg.data_len);
 		/* update default paramater from csv*/
 		update_amp_parameter(TPA2051_MODE_PLAYBACK_SPKR);
@@ -428,7 +428,7 @@ err2:
 		rc = 0;
 		break;
 	default:
-		pr_err("%s: Invalid command\n", __func__);
+		MM_ERR("%s: Invalid command\n", __func__);
 		rc = -EINVAL;
 		break;
 	}
@@ -458,7 +458,7 @@ int tpa2051d3_probe(struct i2c_client *client, const struct i2c_device_id *id)
 		pdata = kzalloc(sizeof(*pdata), GFP_KERNEL);
 		if (pdata == NULL) {
 			ret = -ENOMEM;
-			pr_err("%s: platform data is NULL\n", __func__);
+			MM_ERR("%s: platform data is NULL\n", __func__);
 			goto err_alloc_data_failed;
 		}
 	}
@@ -466,19 +466,19 @@ int tpa2051d3_probe(struct i2c_client *client, const struct i2c_device_id *id)
 	this_client = client;
 
 	if (ret < 0) {
-		pr_err("%s: pmic request aud_spk_en pin failed\n", __func__);
+		MM_ERR("%s: pmic request aud_spk_en pin failed\n", __func__);
 		goto err_free_gpio_all;
 	}
 
 	if (!i2c_check_functionality(client->adapter, I2C_FUNC_I2C)) {
-		pr_err("%s: i2c check functionality error\n", __func__);
+		MM_ERR("%s: i2c check functionality error\n", __func__);
 		ret = -ENODEV;
 		goto err_free_gpio_all;
 	}
 
 	ret = misc_register(&tpa2051d3_device);
 	if (ret) {
-		pr_err("%s: tpa2051d3_device register failed\n", __func__);
+		MM_ERR("%s: tpa2051d3_device register failed\n", __func__);
 		goto err_free_gpio_all;
 	}
 
@@ -533,7 +533,7 @@ static struct i2c_driver tpa2051d3_driver = {
 
 static int __init tpa2051d3_init(void)
 {
-	pr_info("%s\n", __func__);
+	MM_INFO("%s\n", __func__);
 	mutex_init(&spk_amp_lock);
 	return i2c_add_driver(&tpa2051d3_driver);
 }

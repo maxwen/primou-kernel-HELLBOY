@@ -57,9 +57,6 @@
 #define ACOUSTIC_GET_BEATS_STATE	_IOW(ACOUSTIC_IOCTL_MAGIC, 41, unsigned)
 #define ACOUSTIC_ENABLE_BEATS		_IOW(ACOUSTIC_IOCTL_MAGIC, 42, unsigned)
 
-#define D(fmt, args...) printk(KERN_INFO "[AUD] htc-acoustic: "fmt, ##args)
-#define E(fmt, args...) printk(KERN_ERR "[AUD] htc-acoustic: "fmt, ##args)
-
 #define SHARE_PAGES 4
 
 #define HTC_ACDB_TABLE_SIZE        (0x55000)
@@ -136,13 +133,13 @@ static int is_rpc_connect(void)
 
 static int acoustic_open(struct inode *inode, struct file *file)
 {
-	D("open\n");
+	MM_AUD_DBG("open\n");
 	return 0;
 }
 
 static int acoustic_release(struct inode *inode, struct file *file)
 {
-	D("release\n");
+	MM_AUD_DBG("release\n");
 	return 0;
 }
 
@@ -168,7 +165,7 @@ acoustic_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
 			rc = -EFAULT;
 			break;
 		}
-		D("setting size = %d\n", sz);
+		MM_AUD_DBG("setting size = %d\n", sz);
 
 		kfree(htc_adie_table);
 		htc_adie_table = NULL;
@@ -177,7 +174,7 @@ acoustic_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
 			/* allocate 4 pages for adie table*/
 			htc_adie_table = kzalloc(16384, GFP_KERNEL);
 			if (!htc_adie_table) {
-				E("cannot allocate enough memory.\n");
+				MM_AUD_ERR("cannot allocate enough memory.\n");
 				rc = -EINVAL;
 				break;
 			}
@@ -188,13 +185,13 @@ acoustic_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
 	case ACOUSTIC_UPDATE_ADIE:
 		if (copy_from_user(&act_info, (void *)arg,
 			sizeof(struct profile_action_info))) {
-			E("copy_from_user failed\n");
+			MM_AUD_ERR("copy_from_user failed\n");
 			rc = -EFAULT;
 			break;
 		}
 
 		if (act_info.act_sz < 1) {
-			E("can't update setting of %s without"
+			MM_AUD_ERR("can't update setting of %s without"
 				"active action\n", act_info.name);
 			rc = -EFAULT;
 			break;
@@ -226,11 +223,11 @@ acoustic_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
 					(htc_adie_table + action_offset);
 
 					if (act_info.setting == VOICE_SETTING) {
-						D("Update adie (voice) of %s\n", dev_info->name);
+						MM_AUD_DBG("Update adie (voice) of %s\n", dev_info->name);
 						entry[j].voc_action = htc_adie_ptr;
 						entry[j].voc_action_sz = act_info.act_sz;
 						} else {
-						D("Update adie (media) of %s\n", dev_info->name);
+						MM_AUD_DBG("Update adie (media) of %s\n", dev_info->name);
 						entry[j].midi_action = htc_adie_ptr;
 						entry[j].midi_action_sz = act_info.act_sz;
 						/* assign new setting pass from user space
@@ -243,12 +240,12 @@ acoustic_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
 				}
 			}
 			if (j >= setting_sz) {
-				E("can't find device with frequency %d\n",
+				MM_AUD_ERR("can't find device with frequency %d\n",
 				  act_info.freq);
 				rc = -EFAULT;
 			}
 		} else {
-			D("can't find registry device with name %s\n", act_info.name);
+			MM_AUD_DBG("can't find registry device with name %s\n", act_info.name);
 			rc = -EFAULT;
 		}
 
@@ -309,7 +306,7 @@ acoustic_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
 
 		rc = msm_rpc_call(endpoint, ONCRPC_SET_VOICE_ACDB_PROC,
 				    &acdb_req, sizeof(acdb_req), 5 * HZ);
-		D("update voice ACDB (%d, %d), rc %d\n",
+		MM_AUD_DBG("update voice ACDB (%d, %d), rc %d\n",
 			voc.tx_id, voc.rx_id, rc);
 		break;
 	}
@@ -317,10 +314,10 @@ acoustic_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
 		int support_a1026 = 0;
 		if (the_ops->support_audience)
 			support_a1026 = the_ops->support_audience();
-		D("support_a1026: %d\n", support_a1026);
+		MM_AUD_DBG("support_a1026: %d\n", support_a1026);
 		if (copy_to_user((void *) arg,
 			&support_a1026, sizeof(int))) {
-			E("acoustic_ioctl: get engineerID failed\n");
+			MM_AUD_ERR("acoustic_ioctl: get engineerID failed\n");
 			rc = -EFAULT;
 		}
 		break;
@@ -329,10 +326,10 @@ acoustic_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
 		int support_aic3254 = 0;
 		if (the_ops->support_aic3254)
 			support_aic3254 = the_ops->support_aic3254();
-		D("support_aic3254: %d\n", support_aic3254);
+		MM_AUD_DBG("support_aic3254: %d\n", support_aic3254);
 		if (copy_to_user((void *) arg,
 			&support_aic3254, sizeof(int))) {
-			E("acoustic_ioctl: copy to user failed\n");
+			MM_AUD_ERR("acoustic_ioctl: copy to user failed\n");
 			rc = -EFAULT;
 		}
 		break;
@@ -356,10 +353,10 @@ acoustic_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
 		int support_back_mic = 0;
 		if (the_ops->support_back_mic)
 			support_back_mic = the_ops->support_back_mic();
-		D("support_back_mic: %d\n", support_back_mic);
+		MM_AUD_DBG("support_back_mic: %d\n", support_back_mic);
 		if (copy_to_user((void *) arg,
 			&support_back_mic, sizeof(int))) {
-			E("acoustic_ioctl: ACOUSTIC_GET_BACK_MIC_STATE failed\n");
+			MM_AUD_ERR("acoustic_ioctl: ACOUSTIC_GET_BACK_MIC_STATE failed\n");
 			rc = -EFAULT;
 		}
 		break;
@@ -386,7 +383,7 @@ acoustic_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
 			the_ops->get_acoustic_tables(&tb);
 			if (copy_to_user((void *) arg,
 				&tb, sizeof(tb))) {
-				E("acoustic_ioctl: ACOUSTIC_ACOUSTIC_GET_TABLES failed\n");
+				MM_AUD_ERR("acoustic_ioctl: ACOUSTIC_ACOUSTIC_GET_TABLES failed\n");
 				rc = -EFAULT;
 			}
 		} else
@@ -409,7 +406,7 @@ acoustic_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
 			rc = -EFAULT;
 			break;
 		}
-		E("update AIC3254 ID : (%d, %d)\n",
+		MM_AUD_ERR("update AIC3254 ID : (%d, %d)\n",
 			cur_aic3254_info.dev_id,
 			cur_aic3254_info.path_id);
 
@@ -419,10 +416,10 @@ acoustic_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
 		int support_receiver = 1;
 		if (the_ops->support_receiver)
 			support_receiver = the_ops->support_receiver();
-		D("support_receiver: %d\n", support_receiver);
+		MM_AUD_DBG("support_receiver: %d\n", support_receiver);
 		if (copy_to_user((void *) arg,
 			&support_receiver, sizeof(int))) {
-			E("acoustic_ioctl: ACOUSTIC_GET_RECEIVER failed\n");
+			MM_AUD_ERR("acoustic_ioctl: ACOUSTIC_GET_RECEIVER failed\n");
 			rc = -EFAULT;
 		}
 		break;
@@ -431,10 +428,10 @@ acoustic_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
 		int support_beats = 0;
 		if (the_ops->support_beats)
 			support_beats = the_ops->support_beats();
-		D("support_beats: %d\n", support_beats);
+		MM_AUD_DBG("support_beats: %d\n", support_beats);
 		if (copy_to_user((void *) arg,
 			&support_beats, sizeof(int))) {
-			E("acoustic_ioctl: copy to user failed\n");
+			MM_AUD_ERR("acoustic_ioctl: copy to user failed\n");
 			rc = -EFAULT;
 		}
 		break;
@@ -445,7 +442,7 @@ acoustic_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
 			rc = -EFAULT;
 			break;
 		}
-		D("Enable Beats : %d\n", en);
+		MM_AUD_DBG("Enable Beats : %d\n", en);
 		if (the_ops->enable_beats)
 			the_ops->enable_beats(en);
 		break;
@@ -465,7 +462,7 @@ static int acoustic_mmap(struct file *file, struct vm_area_struct *vma)
 	mutex_lock(&api_lock);
 	size = vma->vm_end - vma->vm_start;
 	if (vma->vm_pgoff != 0) {
-		E("mmap failed: page offset %lx\n", vma->vm_pgoff);
+		MM_AUD_ERR("mmap failed: page offset %lx\n", vma->vm_pgoff);
 		goto done;
 	}
 	vma->vm_flags |= VM_RESERVED;
@@ -476,7 +473,7 @@ static int acoustic_mmap(struct file *file, struct vm_area_struct *vma)
 		vma->vm_page_prot);
 
 	if (rc < 0)
-		E("mmap failed: remap error %d\n", rc);
+		MM_AUD_ERR("mmap failed: remap error %d\n", rc);
 done:
 	mutex_unlock(&api_lock);
 	return rc;

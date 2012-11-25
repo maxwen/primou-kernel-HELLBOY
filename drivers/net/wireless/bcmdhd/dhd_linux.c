@@ -1846,14 +1846,14 @@ dhd_rx_frame(dhd_pub_t *dhdp, int ifidx, void *pktbuf, int numpkt, uint8 chan)
 		/* check eap id  */
 		if (ntoh16(skb->protocol) == ETHER_TYPE_802_1X){
 			int plen = 0;
-			printk("@@@ got eap packet start! \n");
+			pr_debug("@@@ got eap packet start! \n");
 			for(plen = 0; plen<len ; plen++){
-				printk("%02x ",eth[plen]);
+				pr_debug("%02x ",eth[plen]);
 				if((plen + 1 )%8 == 0)
-					printk("\n");
+					pr_debug("\n");
 			}
-			printk("\n");
-			printk("@@@ got eap packet End! \n");
+			pr_debug("\n");
+			pr_debug("@@@ got eap packet End! \n");
 
 			if(eth[22] == 0x01) {//22:shit to eap identity
 				//send wps start event

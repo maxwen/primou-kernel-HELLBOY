@@ -31,9 +31,6 @@
 #define ACDB_IOCTL_MAGIC 'd'
 #define HTC_REINIT_ACDB    _IOW(ACDB_IOCTL_MAGIC, 1, unsigned)
 
-#define D(fmt, args...) printk(KERN_INFO "htc-acdb: "fmt, ##args)
-#define E(fmt, args...) printk(KERN_ERR "htc-acdb: "fmt, ##args)
-
 #define SHARE_PAGES 4
 
 #define HTC_DEF_ACDB_SMEM_SIZE        (0x50000)
@@ -96,7 +93,7 @@ static int update_acdb_table_size(uint32_t total_size)
 		int ret;
 	} sz_rep;
 
-	D("%s: total size = %d\n", __func__, total_size);
+	MM_AUD_DBG("%s: total size = %d\n", __func__, total_size);
 	sz_req.size = cpu_to_be32(total_size);
 	sz_rep.ret = cpu_to_be32(reply_value);
 
@@ -106,11 +103,11 @@ static int update_acdb_table_size(uint32_t total_size)
 		&sz_rep, sizeof(sz_rep), 5 * HZ);
 
 	if (rc < 0)
-		pr_err("%s: msm_rpc_call_reply fail (%d)\n", __func__, rc);
+		MM_AUD_ERR("%s: msm_rpc_call_reply fail (%d)\n", __func__, rc);
 
 	reply_value = be32_to_cpu(sz_rep.ret);
 	if (reply_value != 0) {
-		D("%s: rpc update size failed %d\n",
+		MM_AUD_DBG("%s: rpc update size failed %d\n",
 			__func__, reply_value);
 		rc = reply_value;
 	}
@@ -133,7 +130,7 @@ static int update_acdb_table(uint32_t size, int done)
 	} tbl_rep;
 
 	if (size <= 0 || size > acdb_smem_size) {
-		E("invalid table size %d\n", size);
+		MM_AUD_ERR("invalid table size %d\n", size);
 		return -EINVAL;
 	}
 
@@ -142,7 +139,7 @@ static int update_acdb_table(uint32_t size, int done)
 	tbl_rep.ret = cpu_to_be32(reply_value);
 
 	if (done)
-		D("%s: update table %d bytes, done %d\n",
+		MM_AUD_DBG("%s: update table %d bytes, done %d\n",
 			__func__, size, done);
 
 	rc = msm_rpc_call_reply(endpoint,
@@ -151,11 +148,11 @@ static int update_acdb_table(uint32_t size, int done)
 		&tbl_rep, sizeof(tbl_rep), 5 * HZ);
 
 	if (rc < 0)
-		pr_err("%s: msm_rpc_call_reply fail (%d)\n", __func__, rc);
+		MM_AUD_ERR("%s: msm_rpc_call_reply fail (%d)\n", __func__, rc);
 
 	reply_value = be32_to_cpu(tbl_rep.ret);
 	if (reply_value != 0) {
-		E("%s: rpc update table failed %d\n",
+		MM_AUD_ERR("%s: rpc update table failed %d\n",
 			__func__, reply_value);
 		rc = reply_value;
 	}
@@ -177,7 +174,7 @@ static int htc_reinit_acdb(char *filename)
 			strcpy(acdb_init_file, filename);
 	}
 done:
-	D("%s: load '%s', return %d\n", __func__, filename, rc);
+	MM_AUD_DBG("%s: load '%s', return %d\n", __func__, filename, rc);
 	return rc;
 
 }
@@ -196,7 +193,7 @@ static int htc_acdb_open(struct inode *inode, struct file *file)
 		int n;
 	} rep_smem;
 
-	D("open\n");
+	MM_AUD_DBG("open\n");
 
 	mutex_lock(&api_lock);
 
@@ -222,14 +219,14 @@ static int htc_acdb_open(struct inode *inode, struct file *file)
 
 		reply_value = be32_to_cpu(rep_smem.n);
 		if (reply_value != 0 || rc < 0) {
-			E("open failed: ALLOC_ACDB_MEM_PROC error %d.\n", rc);
+			MM_AUD_ERR("open failed: ALLOC_ACDB_MEM_PROC error %d.\n", rc);
 			goto done;
 		}
 		htc_acdb_vir_addr =
 			(uint32_t)smem_alloc(SMEM_ID_VENDOR1,
 					acdb_smem_size);
 		if (!htc_acdb_vir_addr) {
-			E("open failed: smem_alloc error\n");
+			MM_AUD_ERR("open failed: smem_alloc error\n");
 			goto done;
 		}
 		htc_acdb_vir_addr = ((htc_acdb_vir_addr + 4095) & ~4095);
@@ -243,7 +240,7 @@ done:
 
 static int htc_acdb_release(struct inode *inode, struct file *file)
 {
-	D("release\n");
+	MM_AUD_DBG("release\n");
 	return 0;
 }
 
@@ -305,7 +302,7 @@ static int acdb_init(char *filename)
 		acdb_radio_buffer_size = HTC_DEF_ACDB_RADIO_BUFFER_SIZE;
 
 	if (fw->size > acdb_radio_buffer_size) {
-		E("acdb_init: table size too large (%d bytes)\n", fw->size);
+		MM_AUD_ERR("acdb_init: table size too large (%d bytes)\n", fw->size);
 		rc = -EINVAL;
 		goto fail;
 	}

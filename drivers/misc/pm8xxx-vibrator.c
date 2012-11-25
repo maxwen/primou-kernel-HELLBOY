@@ -32,11 +32,11 @@
 #define VIB_MIN_LEVEL_mV	1200
 
 #define VIB_DBG_LOG(fmt, ...) \
-		({ if (0) printk(KERN_DEBUG "[VIB]" fmt, ##__VA_ARGS__); })
+		pr_debug("[VIB]" fmt, ##__VA_ARGS__)
 #define VIB_INFO_LOG(fmt, ...) \
-		printk(KERN_INFO "[VIB]" fmt, ##__VA_ARGS__)
+		pr_info("[VIB]" fmt, ##__VA_ARGS__)
 #define VIB_ERR_LOG(fmt, ...) \
-		printk(KERN_ERR "[VIB][ERR]" fmt, ##__VA_ARGS__)
+		pr_err("[VIB][ERR]" fmt, ##__VA_ARGS__)
 
 struct pm8xxx_vib {
 	struct hrtimer vib_timer;
