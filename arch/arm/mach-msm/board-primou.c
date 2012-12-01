@@ -728,7 +728,7 @@ static int pm8058_pwm_enable(struct pwm_device *pwm, int ch, int on)
 
 static struct pm8xxx_vibrator_platform_data pm8058_vib_pdata = {
        .initial_vibrate_ms  = 0,
-       .level_mV = 3000,
+       .level_mV = 2800,
        .max_timeout_ms = 15000,
 };
 static struct pm8058_pwm_pdata pm8058_pwm_data = {
