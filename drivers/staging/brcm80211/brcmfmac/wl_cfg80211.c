@@ -352,7 +352,7 @@ extern int dhd_wait_pend8021x(struct net_device *dev);
 	.hw_value		= (_channel),			\
 	.flags			= (_flags),			\
 	.max_antenna_gain	= 0,				\
-	.max_power		= 20,				\
+	.max_power		= 30,				\
 }
 
 #define CHAN5G(_channel, _flags) {				\
@@ -361,7 +361,7 @@ extern int dhd_wait_pend8021x(struct net_device *dev);
 	.hw_value		= (_channel),			\
 	.flags			= (_flags),			\
 	.max_antenna_gain	= 0,				\
-	.max_power		= 20,				\
+	.max_power		= 30,				\
 }
 
 #define RATE_TO_BASE100KBPS(rate)   (((rate) * 10) / 2)
