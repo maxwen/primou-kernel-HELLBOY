@@ -96,3 +96,7 @@ config MDP4_HW_VSYNC
 	bool "QCT hardware TE"
 	depends on MSM_MDP40
 	default n
+	
+config FB_42
+	bool "FB support for android 4.2"
+	default n

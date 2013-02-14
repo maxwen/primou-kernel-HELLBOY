@@ -171,7 +171,12 @@ struct fb_fix_screeninfo {
 	__u32 mmio_len;			/* Length of Memory Mapped I/O  */
 	__u32 accel;			/* Indicate to driver which	*/
 					/*  specific chip/card we have	*/
+#ifdef CONFIG_FB_42
+	__u16 capabilities;    /* see FB_CAP_*/
+	__u16 reserved[2];    /* Reserved for future compatibility */
+#else
 	__u16 reserved[3];		/* Reserved for future compatibility */
+#endif
 };
 
 /* Interpretation of offset for color fields: All offsets are from the right,
@@ -273,7 +278,12 @@ struct fb_var_screeninfo {
 	__u32 sync;			/* see FB_SYNC_*		*/
 	__u32 vmode;			/* see FB_VMODE_*		*/
 	__u32 rotate;			/* angle we rotate counter clockwise */
+#ifdef CONFIG_FB_42
+	__u32 capabilities;    /* see FB_CAP_*/
+	__u32 reserved[4];    /* Reserved for future compatibility */
+#else
 	__u32 reserved[5];		/* Reserved for future compatibility */
+#endif
 };
 
 struct fb_cmap {

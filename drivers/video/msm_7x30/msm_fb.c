@@ -1225,7 +1225,11 @@ static void setup_fb_info(struct msmfb_info *msmfb)
 	int r;
 
 	/* finish setting up the fb_info struct */
+#ifdef CONFIG_FB_42
+	strncpy(fb_info->fix.id, "msmfb40_0", 16);
+#else
 	strncpy(fb_info->fix.id, "msmfb", 16);
+#endif
 	fb_info->fix.ypanstep = 1;
 
 	fb_info->fbops = &msmfb_ops;
@@ -1243,7 +1247,9 @@ static void setup_fb_info(struct msmfb_info *msmfb)
 	fb_info->var.yres_virtual = msmfb->yres * 2;
 	fb_info->var.bits_per_pixel = BITS_PER_PIXEL_DEF;
 	fb_info->var.accel_flags = 0;
-
+#ifdef CONFIG_FB_42
+	fb_info->var.reserved[3] = 60;
+#endif
 	fb_info->var.yoffset = 0;
 
 	if (msmfb->panel->caps & MSMFB_CAP_PARTIAL_UPDATES) {
