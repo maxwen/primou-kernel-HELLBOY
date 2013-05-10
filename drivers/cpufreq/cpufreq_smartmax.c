@@ -206,9 +206,6 @@ static bool is_suspended = false;
 static struct early_suspend smartmax_early_suspend_handler;
 #endif
 
-#define LATENCY_MULTIPLIER			(1000)
-#define MIN_LATENCY_MULTIPLIER			(100)
-
 static int cpufreq_governor_smartmax(struct cpufreq_policy *policy,
 		unsigned int event);
 
