@@ -70,7 +70,7 @@ int set_task_ioprio(struct task_struct *task, int ioprio)
 		/* make sure schedulers see the new ioprio value */
 		wmb();
 		for (i = 0; i < IOC_IOPRIO_CHANGED_BITS; i++)
-		   set_bit(i, ioc->ioprio_changed);
+			set_bit(i, ioc->ioprio_changed);
 	}
 
 	task_unlock(task);
