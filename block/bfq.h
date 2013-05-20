@@ -1,13 +1,11 @@
 /*
- * BFQ-v5r1 for 3.0: data structures and common functions prototypes.
+ * BFQ-v4 for 3.0: data structures and common functions prototypes.
  *
  * Based on ideas and code from CFQ:
  * Copyright (C) 2003 Jens Axboe <axboe@kernel.dk>
  *
  * Copyright (C) 2008 Fabio Checconi <fabio@gandalf.sssup.it>
  *		      Paolo Valente <paolo.valente@unimore.it>
- *
- * Copyright (C) 2010 Paolo Valente <paolo.valente@unimore.it>
  */
 
 #ifndef _BFQ_H
@@ -189,8 +187,6 @@ struct bfq_group;
  * @pid: pid of the process owning the queue, used for logging purposes.
  * @last_rais_start_time: last (idle -> weight-raised) transition attempt
  * @raising_cur_max_time: current max raising time for this queue
- * @cic: pointer to the cfq_io_context owning the bfq_queue, set to %NULL if the
- *	 queue is shared
  *
  * A bfq_queue is a leaf request queue; it can be associated to an io_context
  * or more (if it is an async one).  @cgroup holds a reference to the
@@ -240,8 +236,6 @@ struct bfq_queue {
 	unsigned int raising_cur_max_time;
 	u64 last_rais_start_finish, soft_rt_next_start;
 	unsigned int raising_coeff;
-
-	struct cfq_io_context *cic;
 };
 
 /**
@@ -251,8 +245,6 @@ struct bfq_queue {
  * @rq_pos_tree: rbtree sorted by next_request position,
  *		used when determining if two or more queues
  *		have interleaving requests (see bfq_close_cooperator).
- * @eqm_lock:  spinlock used to protect all data structures pertaining
- *             the Early Queue Merge (EQM) mechanism.
  * @busy_queues: number of bfq_queues containing requests (including the
  *		 queue under service, even if it is idling).
  * @queued: number of queued requests.
@@ -307,8 +299,6 @@ struct bfq_queue {
  *                                   (in jiffies)
  * @bfq_raising_max_softrt_rate: max service-rate for a soft real-time queue,
  *			         sectors per seconds
- * @RT_prod: cached value of the product R*T used for computing the maximum
- * 	     duration of the weight raising automatically
  * @oom_bfqq: fallback dummy bfqq for extreme OOM conditions
  *
  * All the fields are protected by the @queue lock.
@@ -319,7 +309,6 @@ struct bfq_data {
 	struct bfq_group *root_group;
 
 	struct rb_root rq_pos_tree;
-	spinlock_t eqm_lock;
 
 	int busy_queues;
 	int queued;
@@ -372,7 +361,6 @@ struct bfq_data {
 	unsigned int bfq_raising_min_idle_time;
 	unsigned int bfq_raising_min_inter_arr_async;
 	unsigned int bfq_raising_max_softrt_rate;
-	u64 RT_prod;
 
 	struct bfq_queue oom_bfqq;
 };
@@ -389,7 +377,6 @@ enum bfqq_state_flags {
 	BFQ_BFQQ_FLAG_coop,		/* bfqq is shared */
 	BFQ_BFQQ_FLAG_split_coop,	/* shared bfqq will be splitted */
 	BFQ_BFQQ_FLAG_some_coop_idle,   /* some cooperator is inactive */
-	BFQ_BFQQ_FLAG_just_split,	/* queue has just been split */
 };
 
 #define BFQ_BFQQ_FNS(name)						\
@@ -417,7 +404,6 @@ BFQ_BFQQ_FNS(budget_new);
 BFQ_BFQQ_FNS(coop);
 BFQ_BFQQ_FNS(split_coop);
 BFQ_BFQQ_FNS(some_coop_idle);
-BFQ_BFQQ_FNS(just_split);
 #undef BFQ_BFQQ_FNS
 
 /* Logging facilities. */
